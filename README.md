@@ -3,7 +3,9 @@ Sample code for python SPI encoder communication using Raspberry Pi. The sample 
 
 ## Device
 The pinout and dimentions of the Westwood Robotics MPS encoder is as shown below:
+
 ![](images/Specs.jpg)
+
 Connect the pins accordingly to your Pi, or any compatible device of your choice.
 
 ## Usage
