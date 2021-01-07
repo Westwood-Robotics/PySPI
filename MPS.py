@@ -12,24 +12,35 @@ import time
 import os
 import numpy
 import spidev
+import wiringpi
 from MPS_CONTROL_TABLE import *
 
 # Enable SPI
 spi = spidev.SpiDev()
 
 
-class MPS_Encoder(object):
+class MPS_Encoder(object):  # Handles a single encoder
 
-    def __init__(self, name, chip_bus, cs, max_speed, mode):
+    def __init__(self, name, chip_bus, cs, max_speed, mode, gpio=False):
         self.name = name
         self.chip_bus = chip_bus
-        self.cs = cs # Chip Select, set to 0 if connected to CE0 on Pi, or 1 if connected to CE1
+        self.cs = cs  # Chip Select, set to 0 if connected to CE0 on Pi, or 1 if connected to CE1
         self.max_speed = max_speed
-        self.mode = mode # SPI mode, this should be just 0 for most MPS encoders.
+        self.mode = mode  # SPI mode, this should be just 0 for most MPS encoders.
+        self.gpio = gpio  # Set to True if want to use GPIO as CS.
+        if self.gpio:
+            wiringpi.wiringPiSetupGpio()
+            wiringpi.pinMode(self.cs, 1)
+            wiringpi.digitalWrite(self.cs, 1)  # Set ChipSelect GPIO as HIGH
 
     def connect(self):
         # Open a connection to a specific bus and device (chip select pin)
-        spi.open(self.chip_bus, self.cs)
+        if self.gpio:
+            cs = 2  # Using GPIO pins, thus set cs as something not existing
+            spi.open(self.chip_bus, cs)
+            wiringpi.digitalWrite(self.cs, 0)  # Set ChipSelect GPIO as LOW
+        else:
+            spi.open(self.chip_bus, self.cs)
         # Set SPI speed and mode
         spi.max_speed_hz = self.max_speed
         spi.mode = self.mode
@@ -66,6 +77,8 @@ class MPS_Encoder(object):
 
     def release(self):
         # Disconnect the device
+        if self.gpio:
+            wiringpi.digitalWrite(self.cs, 1)  # Set ChipSelect GPIO as HIGH
         spi.close()
         print("Device released.")
 
@@ -126,3 +139,46 @@ class MPS_Encoder(object):
             return True
         else:
             return False
+
+
+class MPS_Encoder_Cluster(object):  # Handles a cluster of encoders via utilizing GPIO pins as CS
+
+    def __init__(self, name, chip_bus, cs, max_speed, mode):
+        self.name = name
+        self.chip_bus = chip_bus
+        self.cs = cs  # Chip Select, a list of CS pins on GPIO
+        self.max_speed = max_speed
+        self.mode = mode  # SPI mode, this should be just 0 for most MPS encoders.
+        # Initiate GPIO pins
+        wiringpi.wiringPiSetupGpio()
+        for i in self.cs:
+            wiringpi.pinMode(i, 1)  # Set all ChipSelect GPIO as output
+            wiringpi.digitalWrite(i, 1)  # Set ChipSelect GPIO as HIGH
+        self.angles = [None]*len(self.cs)  # Initiate angles
+
+    def connect(self):
+        # Open a connection to a specific bus
+        spi.open(self.chip_bus, 2)  # Using GPIO pins, thus set cs as something not existing
+        spi.max_speed_hz = self.max_speed
+        spi.mode = self.mode
+        print("Device connected.")
+
+    def read_angle(self):
+        # Read angle from all devices
+        for idx, val in enumerate(self.cs):
+            wiringpi.digitalWrite(val, 0)  # Set target ChipSelect GPIO as LOW
+            data = spi.readbytes(2)
+            wiringpi.digitalWrite(val, 1)  # Set target ChipSelect GPIO as HIGH
+            high_byte = data[0] << 8
+            low_byte = data[1]
+            self.angles[idx] = (high_byte + low_byte) >> 4  # Get rid of last 4 bit whatever
+        return self.angles
+
+    def release(self):
+        # Disconnect the device
+        spi.close()
+        for i in self.cs:
+            wiringpi.digitalWrite(i, 1)  # Set all ChipSelect GPIO as HIGH
+        print("Device released.")
+
+
