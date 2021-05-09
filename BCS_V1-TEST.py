@@ -14,21 +14,46 @@ wiringpi.pinMode(22, 1)
 wiringpi.digitalWrite(22, 1)  # Set ChipSelect GPIO as HIGH
 print("Device connected.")
 
+# wiringpi.digitalWrite(22, 0)
+# send = 0x1E
+# spi.writebytes([send])
+# time.sleep(0.005)
+# wiringpi.digitalWrite(22, 1)
+#
+# print("RST done.")
+#
+# PROM_Add = [0xA2, 0xA4, 0xA6, 0xA8, 0xAA, 0xAC]
+# PROM_readout = []
+# for add in PROM_Add:
+#     wiringpi.digitalWrite(22, 0)
+#     spi.writebytes([add])
+#     PROM_readout.append(spi.readbytes(2))
+#     wiringpi.digitalWrite(22, 1)
+#     # time.sleep(0.001)
+#
+# print(PROM_readout)
+
+# ===========
+# xfer() method
 wiringpi.digitalWrite(22, 0)
-send = 0x1E
-spi.writebytes([send])
-time.sleep(0.005)
+send = [0x1E, 0x00, 0x00, 0x00]
+rcvd = spi.xfer(send)
+time.sleep(0.003)
 wiringpi.digitalWrite(22, 1)
+print("RST return:")
+print(rcvd)
 
-print("RST done.")
-
-PROM_Add = [0xA2, 0xA4, 0xA6, 0xA8, 0xAA, 0xAC]
-PROM_readout = []
-for add in PROM_Add:
-    wiringpi.digitalWrite(22, 0)
-    spi.writebytes([add])
-    PROM_readout.append(spi.readbytes(2))
-    wiringpi.digitalWrite(22, 1)
-    # time.sleep(0.001)
-
+# PROM_Add = [0xA2, 0xA4, 0xA6, 0xA8, 0xAA, 0xAC]
+PROM_Add = [0xA2, 0x00, 0x00]
+# PROM_readout = []
+PROM_readout = spi.xfer(PROM_Add)
+# for add in PROM_Add:
+#     wiringpi.digitalWrite(22, 0)
+#     spi.writebytes([add])
+#     PROM_readout.append(spi.readbytes(2))
+#     wiringpi.digitalWrite(22, 1)
+#     # time.sleep(0.001)
+#
 print(PROM_readout)
+
+
