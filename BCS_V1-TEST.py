@@ -15,3 +15,4 @@ send = 0x1E
 spi.writebytes([send])
 data = spi.readbytes(2)
 
+print(data)
