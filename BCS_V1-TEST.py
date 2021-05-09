@@ -46,6 +46,7 @@ print(rcvd)
 # PROM_Add = [0xA2, 0xA4, 0xA6, 0xA8, 0xAA, 0xAC]
 PROM_Add = [0xA2, 0x00, 0x00]
 # PROM_readout = []
+wiringpi.digitalWrite(22, 0)
 PROM_readout = spi.xfer(PROM_Add)
 # for add in PROM_Add:
 #     wiringpi.digitalWrite(22, 0)
@@ -54,6 +55,7 @@ PROM_readout = spi.xfer(PROM_Add)
 #     wiringpi.digitalWrite(22, 1)
 #     # time.sleep(0.001)
 #
+wiringpi.digitalWrite(22, 1)
 print(PROM_readout)
 
 
