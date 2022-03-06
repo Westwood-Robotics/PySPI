@@ -23,10 +23,11 @@ class REG:
     Zero_High_Byte = 0x01
     BCT = 0x02
     Sensor_Orientation = 0x03
-    
+    MGLT_MGHT = 0x06
 
 
-REG_DIC = {'BTC': REG.BCT,
+REG_DIC = {'BCT': REG.BCT,
            'sensor_orientation': REG.Sensor_Orientation,
            'zero_low': REG.Zero_Low_Byte,
-           'zero_high': REG.Zero_High_Byte}
+           'zero_high': REG.Zero_High_Byte,
+           'MGLT_MGHT': REG.MGLT_MGHT}

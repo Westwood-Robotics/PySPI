@@ -19,5 +19,6 @@ Install wiringpi and spidev packages before using.
 2. Even though there are only 2 CS pins for SPI communication on Pi, you can still link more than 2 devices by using GPIO pins as CS pins. When doing so, please set ```gpio``` to ```True``` when creating an ```MPS_Encoder``` instance and use GPIO numbering for your CS pin number.
 
 3. Use ```MPS_Encoder``` with single encoder; use ```MPS_Encoder_Cluster``` if you wish to bundle several encoders using GPIO for ChipSelect.
+4. AVOID USING PIN CE0.
 
 Enjoy!

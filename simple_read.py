@@ -8,8 +8,7 @@ __status__ = "Prototype"
 
 # Simply keep reading angular position data from the encoder.
 
-from MPS import *
-import os
+from pyspi.MPS import *
 
 # We only have SPI bus 0 available to us on the Pi
 bus = 0
